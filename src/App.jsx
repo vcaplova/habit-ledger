@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import {
   Plus, Trash2, Check, ChevronLeft, ChevronRight, Flame, Copy, Trophy,
-  Repeat, Sun, Moon, Settings2, X, StickyNote, Pencil, LogIn, Cloud, CloudOff,
+  Repeat, Sun, Moon, Settings, Settings2, X, StickyNote, Pencil, LogIn, LogOut, Cloud, CloudOff,
 } from "lucide-react";
 import { useCloudData } from "./useCloudData";
 
@@ -71,6 +71,8 @@ export default function HabitTracker() {
   const [showCats, setShowCats] = useState(false);
   const [openTask, setOpenTask] = useState(null); // id of task expanded for editing
   const [composing, setComposing] = useState(false); // add-task form visibility
+  const [menuOpen, setMenuOpen] = useState(false); // settings dropdown
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null); // { kind: 'cat'|'rule', id }
 
 
@@ -275,16 +277,48 @@ export default function HabitTracker() {
           <button className="ht-iconbtn" onClick={() => setData((d) => ({ ...d, theme: dark ? "light" : "dark" }))} aria-label="Toggle dark mode">
             {dark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
-          {user ? (
-            <button className="ht-account ht-account-avatar" onClick={signOut} title={`Signed in as ${user.email} — synced across devices. Click to sign out.`}>
-              {user.photoURL ? <img src={user.photoURL} alt="Account" referrerPolicy="no-referrer" /> : <Cloud size={15} />}
+          <div className="ht-settings-wrap">
+            <button className="ht-iconbtn" onClick={() => { setMenuOpen(!menuOpen); setConfirmSignOut(false); }} aria-label="Settings">
+              <Settings size={15} />
             </button>
-          ) : (
-            <button className="ht-account ht-account-out" onClick={signIn} title="Sign in with Google to sync across devices">
-              <CloudOff size={14} />
-              <span className="ht-account-label">Sign in to sync</span>
-            </button>
-          )}
+            {menuOpen && (
+              <>
+                <div className="ht-menu-backdrop" onClick={() => { setMenuOpen(false); setConfirmSignOut(false); }} />
+                <div className="ht-menu">
+                  {user ? (
+                    <>
+                      <div className="ht-menu-user">
+                        {user.photoURL && <img src={user.photoURL} alt="" referrerPolicy="no-referrer" />}
+                        <div>
+                          <strong>{user.displayName || "Signed in"}</strong>
+                          <span>{user.email}</span>
+                        </div>
+                      </div>
+                      <div className="ht-menu-sync"><Cloud size={13} /> Synced across devices</div>
+                      {!confirmSignOut ? (
+                        <button className="ht-menu-btn" onClick={() => setConfirmSignOut(true)}>
+                          <LogOut size={14} /> Sign out
+                        </button>
+                      ) : (
+                        <div className="ht-menu-confirm">
+                          <span>Sign out?</span>
+                          <button className="ht-confirm-yes" onClick={() => { signOut(); setMenuOpen(false); setConfirmSignOut(false); }}>Sign out</button>
+                          <button className="ht-confirm-no" onClick={() => setConfirmSignOut(false)}>Cancel</button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="ht-menu-sync"><CloudOff size={13} /> Not synced — data stays on this device</div>
+                      <button className="ht-menu-btn" onClick={() => { signIn(); setMenuOpen(false); }}>
+                        <LogIn size={14} /> Sign in with Google
+                      </button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -609,13 +643,20 @@ const CSS = `
 .ht-head-stats{display:flex; gap:8px; align-items:center}
 .ht-chip{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; background:var(--accent); color:var(--accent-ink); padding:5px 11px; border-radius:999px}
 .ht-chip-soft{background:transparent; color:var(--accent); border:1px solid var(--accent)}
-.ht-account{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); font-size:12px; font-weight:600; padding:4px 10px 4px 4px; border-radius:999px; cursor:pointer}
-.ht-account img{width:20px; height:20px; border-radius:50%; display:block}
-.ht-account-avatar{width:28px; height:28px; padding:0; justify-content:center; border-radius:50%; overflow:hidden}
-.ht-account-avatar img{width:100%; height:100%}
-.ht-account-out{padding:5px 12px; color:var(--sub)}
-.ht-account-out:hover{color:var(--ink); border-color:var(--sub)}
-@media (max-width:520px){ .ht-account-label{display:none} }
+.ht-settings-wrap{position:relative}
+.ht-menu-backdrop{position:fixed; inset:0; z-index:40}
+.ht-menu{position:absolute; right:0; top:34px; z-index:41; min-width:230px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px; box-shadow:0 8px 28px rgba(0,0,0,.14); display:flex; flex-direction:column; gap:8px}
+.ht-menu-user{display:flex; align-items:center; gap:9px}
+.ht-menu-user img{width:32px; height:32px; border-radius:50%}
+.ht-menu-user div{display:flex; flex-direction:column; min-width:0}
+.ht-menu-user strong{font-size:13px}
+.ht-menu-user span{font-size:11.5px; color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ht-menu-sync{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--sub); border-top:1px solid var(--line); padding-top:8px}
+.ht-menu > .ht-menu-sync:first-child{border-top:none; padding-top:0}
+.ht-menu-btn{display:flex; align-items:center; gap:7px; border:1px solid var(--line); background:transparent; color:var(--ink); font-size:13px; font-weight:600; padding:8px 11px; border-radius:9px; cursor:pointer; font-family:inherit}
+.ht-menu-btn:hover{background:var(--paper)}
+.ht-menu-confirm{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600}
+.ht-menu-confirm span{flex:1}
 .ht-main{max-width:1060px; margin:0 auto; display:grid; grid-template-columns:minmax(300px,380px) 1fr; gap:14px; align-items:start}
 .ht-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; transition:background .25s, border-color .25s}
 .ht-stats{grid-column:1 / -1}
