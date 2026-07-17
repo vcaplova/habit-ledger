@@ -700,7 +700,8 @@ const CSS = `
 .ht-tasks li:hover, .ht-tasks li.open{background:var(--paper)}
 .ht-task-row{display:flex; align-items:center; gap:10px; padding:8px 6px}
 .ht-tasks li.done .ht-task-text span:first-child{text-decoration:line-through; color:var(--sub)}
-.ht-check{width:20px; height:20px; min-width:20px; border-radius:6px; border:2px solid; cursor:pointer; display:grid; place-items:center; transition:background .15s}
+.ht-check{width:20px; height:20px; min-width:20px; padding:0; line-height:0; border-radius:6px; border:2px solid; cursor:pointer; display:grid; place-items:center; transition:background .15s}
+.ht-check svg{display:block}
 .ht-task-text{flex:1; font-size:14.5px; display:flex; align-items:center; gap:6px; background:none; border:none; padding:0; text-align:left; cursor:pointer; color:var(--ink); font-family:inherit; min-width:0}
 .ht-task-text span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .ht-rep{color:var(--sub); flex:none}
