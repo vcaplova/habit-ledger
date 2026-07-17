@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import {
   Plus, Trash2, Check, ChevronLeft, ChevronRight, Flame, Copy, Trophy,
-  Repeat, Sun, Moon, Settings2, X, StickyNote, Pencil, LogIn, LogOut, Cloud, CloudOff,
+  Repeat, Sun, Moon, Settings2, X, StickyNote, Pencil, LogIn, Cloud, CloudOff,
 } from "lucide-react";
 import { useCloudData } from "./useCloudData";
 
@@ -275,10 +275,8 @@ export default function HabitTracker() {
             {dark ? <Sun size={15} /> : <Moon size={15} />}
           </button>
           {user ? (
-            <button className="ht-account" onClick={signOut} title={`Signed in as ${user.email} — synced across devices. Click to sign out.`}>
-              {user.photoURL ? <img src={user.photoURL} alt="" /> : <Cloud size={14} />}
-              <span className="ht-account-label">{user.displayName?.split(" ")[0] || "Synced"}</span>
-              <LogOut size={12} />
+            <button className="ht-account ht-account-avatar" onClick={signOut} title={`Signed in as ${user.email} — synced across devices. Click to sign out.`}>
+              {user.photoURL ? <img src={user.photoURL} alt="Account" referrerPolicy="no-referrer" /> : <Cloud size={15} />}
             </button>
           ) : (
             <button className="ht-account ht-account-out" onClick={signIn} title="Sign in with Google to sync across devices">
@@ -584,7 +582,7 @@ const CSS = `
   --paper:#121212; --card:#1B1B1A; --cell:#212120; --ink:#E9E7E0; --sub:#8F8B81;
   --line:#333230; --accent:#D8D5CB; --accent-ink:#161615;
   --ok:#4CAF45; --ok-ink:#0B1E08; --warn:#E0941C; --warn-ink:#2A1800; --bad:#D6543F; --bad-ink:#280C06;
-  --plan:#242422;
+  --plan:#3B3B37;
 }
 .ht-root *{box-sizing:border-box; margin:0}
 .ht-loading{padding:60px; text-align:center; color:var(--sub); font-style:italic}
@@ -596,7 +594,9 @@ const CSS = `
 .ht-chip{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; background:var(--accent); color:var(--accent-ink); padding:5px 11px; border-radius:999px}
 .ht-chip-soft{background:transparent; color:var(--accent); border:1px solid var(--accent)}
 .ht-account{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); font-size:12px; font-weight:600; padding:4px 10px 4px 4px; border-radius:999px; cursor:pointer}
-.ht-account img{width:20px; height:20px; border-radius:50%}
+.ht-account img{width:20px; height:20px; border-radius:50%; display:block}
+.ht-account-avatar{width:28px; height:28px; padding:0; justify-content:center; border-radius:50%; overflow:hidden}
+.ht-account-avatar img{width:100%; height:100%}
 .ht-account-out{padding:5px 12px; color:var(--sub)}
 .ht-account-out:hover{color:var(--ink); border-color:var(--sub)}
 @media (max-width:520px){ .ht-account-label{display:none} }
@@ -608,7 +608,8 @@ const CSS = `
 /* calendar */
 .ht-cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
 .ht-cal-title{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:16px; font-weight:600}
-.ht-iconbtn{border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:8px; width:28px; height:28px; display:grid; place-items:center; cursor:pointer}
+.ht-iconbtn{border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:8px; width:28px; height:28px; padding:0; line-height:0; display:grid; place-items:center; cursor:pointer}
+.ht-iconbtn svg{display:block}
 .ht-iconbtn:hover{background:var(--paper)}
 .ht-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px}
 .ht-grid-head{margin-bottom:5px}
