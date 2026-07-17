@@ -70,6 +70,7 @@ export default function HabitTracker() {
   const [showRules, setShowRules] = useState(false);
   const [showCats, setShowCats] = useState(false);
   const [openTask, setOpenTask] = useState(null); // id of task expanded for editing
+  const [composing, setComposing] = useState(false); // add-task form visibility
   const [confirmDelete, setConfirmDelete] = useState(null); // { kind: 'cat'|'rule', id }
 
 
@@ -382,17 +383,31 @@ export default function HabitTracker() {
             })}
           </ul>
 
+          {dayTasks.length === 0 && (
+            <p className="ht-empty ht-noTasks">Nothing on the list for this day{isToday ? " yet" : ""}.</p>
+          )}
+
           {dayTasks.length === 0 && yesterdayHad && (
             <button className="ht-ghostbtn" onClick={copyYesterday}><Copy size={13} /> Copy yesterday's tasks</button>
           )}
 
+          {!composing ? (
+            <button className="ht-composeopen" onClick={() => setComposing(true)}>
+              <Plus size={15} /> Add a task
+            </button>
+          ) : (
           <div className="ht-add">
+            <div className="ht-add-head">
+              <span>New task</span>
+              <button className="ht-del" style={{ opacity: 1 }} onClick={() => setComposing(false)} aria-label="Close"><X size={14} /></button>
+            </div>
             <div className="ht-add-row">
               <input
+                autoFocus
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTask()}
-                placeholder="Add a task…"
+                onKeyDown={(e) => { if (e.key === "Enter") addTask(); if (e.key === "Escape") setComposing(false); }}
+                placeholder="What needs doing?"
               />
               <button className="ht-addbtn" onClick={addTask} aria-label="Add task"><Plus size={16} /></button>
             </div>
@@ -427,6 +442,7 @@ export default function HabitTracker() {
               )}
             </div>
           </div>
+          )}
 
           <div className="ht-panels">
             <button className="ht-rulestoggle" onClick={() => { setShowRules(!showRules); setShowCats(false); }}>
@@ -657,7 +673,12 @@ const CSS = `
 .ht-donebtn{align-self:flex-end; border:none; background:var(--accent); color:var(--accent-ink); font-size:12px; font-weight:600; padding:6px 13px; border-radius:8px; cursor:pointer}
 .ht-ghostbtn{display:inline-flex; align-items:center; gap:6px; margin-top:6px; border:1px dashed var(--line); background:transparent; color:var(--sub); font-size:12.5px; padding:7px 12px; border-radius:9px; cursor:pointer}
 .ht-ghostbtn:hover{color:var(--ink); border-color:var(--sub)}
-.ht-add{margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
+.ht-noTasks{margin:6px 0 2px}
+.ht-composeopen{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:14px; border:1px dashed var(--line); background:transparent; color:var(--sub); font-size:13px; font-weight:600; padding:10px; border-radius:10px; cursor:pointer; font-family:inherit}
+.ht-composeopen:hover{color:var(--ink); border-color:var(--sub); background:var(--paper)}
+.ht-add{margin-top:14px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px}
+.ht-add-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:9px}
+.ht-add-head span{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--sub); font-weight:700}
 .ht-add-row{display:flex; gap:8px}
 .ht-add input, .ht-newcat input{flex:1; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 12px; font-size:14px; color:var(--ink); outline:none; min-width:0; font-family:inherit}
 .ht-add input:focus, .ht-newcat input:focus{border-color:var(--accent)}
