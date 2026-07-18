@@ -279,7 +279,6 @@ export default function HabitTracker() {
           <span className="ht-logo" aria-hidden="true">DL</span>
           <div className="ht-head-titles">
             <h1>{greeting("Veronika")}</h1>
-            <span className="ht-eyebrow">Daily Ledger</span>
           </div>
         </div>
         <div className="ht-head-stats">
