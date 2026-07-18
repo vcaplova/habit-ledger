@@ -277,12 +277,11 @@ export default function HabitTracker() {
       <header className="ht-head">
         <div className="ht-head-left">
           <span className="ht-logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="28" height="28">
-              <rect x="14" y="19" width="36" height="31" rx="5" fill="none" stroke="currentColor" strokeWidth="4.5" />
-              <line x1="23" y1="12" x2="23" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-              <line x1="41" y1="12" x2="41" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-              <line x1="14" y1="29" x2="50" y2="29" stroke="currentColor" strokeWidth="3" />
-              <circle cx="39" cy="41" r="5" fill="currentColor" />
+            <svg viewBox="0 0 212 235" width="21" height="23" fill="none" stroke="currentColor" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M105.949 139.34H106.049M105.949 183.785H106.049M150.344 139.34H150.444M61.5547 139.34H61.6544M61.5547 183.785H61.6544" />
+              <path d="M156 6V50.4451M56 6V50.4451" />
+              <path d="M183.778 28.2188H28.2222C15.9492 28.2188 6 38.1681 6 50.4413V205.999C6 218.273 15.9492 228.222 28.2222 228.222H183.778C196.051 228.222 206 218.273 206 205.999V50.4413C206 38.1681 196.051 28.2188 183.778 28.2188Z" />
+              <path d="M6 94.8906H206" />
             </svg>
           </span>
           <div className="ht-head-titles">
@@ -811,7 +810,7 @@ const CSS = `
   .ht-head h1{font-size:20px}
   .ht-eyebrow{font-size:10px}
   .ht-logo{width:34px; height:34px; min-width:34px}
-  .ht-logo svg{width:25px; height:25px}
+  .ht-logo svg{width:19px; height:21px}
   .ht-chip{font-size:11.5px; padding:4px 9px}
   .ht-main{gap:10px}
   .ht-card{padding:13px; border-radius:12px}
