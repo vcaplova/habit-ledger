@@ -277,7 +277,15 @@ export default function HabitTracker() {
       <header className="ht-head">
         <div className="ht-head-left">
           <span className="ht-logo" aria-hidden="true">
-            <img src={import.meta.env.BASE_URL + "favicon.svg"} alt="" />
+            <svg viewBox="0 0 512 512" fill="none">
+              <rect width="512" height="512" rx="115" fill="var(--accent)" />
+              <g transform="translate(137.75, 125) scale(1.1)" stroke="var(--accent-ink)" strokeWidth="20" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M107.449 140.84H107.549M107.449 185.285H107.549M151.844 140.84H151.944M63.0547 140.84H63.1544M63.0547 185.285H63.1544" />
+                <path d="M157.5 7.5V51.9451M57.5 7.5V51.9451" />
+                <path d="M185.278 29.7188H29.7222C17.4492 29.7188 7.5 39.6681 7.5 51.9413V207.499C7.5 219.773 17.4492 229.722 29.7222 229.722H185.278C197.551 229.722 207.5 219.773 207.5 207.499V51.9413C207.5 39.6681 197.551 29.7188 185.278 29.7188Z" />
+                <path d="M7.5 96.3906H207.5" />
+              </g>
+            </svg>
           </span>
           <div className="ht-head-titles">
             <h1>{greeting("Veronika")}</h1>
@@ -651,8 +659,8 @@ const CSS = `
 .ht-loading{padding:60px; text-align:center; color:var(--sub); font-style:italic}
 .ht-head{max-width:1060px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px}
 .ht-head-left{display:flex; align-items:center; gap:11px}
-.ht-logo{width:38px; height:38px; min-width:38px; border-radius:10px; overflow:hidden; display:block}
-.ht-logo img{width:100%; height:100%; display:block}
+.ht-logo{width:38px; height:38px; min-width:38px; display:block}
+.ht-logo svg{width:100%; height:100%; display:block}
 .ht-head-titles{display:flex; flex-direction:column; gap:2px}
 .ht-head h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:26px; font-weight:600; letter-spacing:.2px}
 .ht-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:1.6px; color:var(--sub)}
