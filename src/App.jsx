@@ -267,9 +267,12 @@ export default function HabitTracker() {
       <style>{CSS}</style>
 
       <header className="ht-head">
-        <div className="ht-head-titles">
-          <h1>{greeting("Veronika")}</h1>
-          <span className="ht-eyebrow">Daily Ledger</span>
+        <div className="ht-head-left">
+          <span className="ht-logo" aria-hidden="true">DL</span>
+          <div className="ht-head-titles">
+            <h1>{greeting("Veronika")}</h1>
+            <span className="ht-eyebrow">Daily Ledger</span>
+          </div>
         </div>
         <div className="ht-head-stats">
           <span className="ht-chip"><Flame size={14} /> {streaks.cur} day streak</span>
@@ -637,6 +640,8 @@ const CSS = `
 .ht-root *{box-sizing:border-box; margin:0}
 .ht-loading{padding:60px; text-align:center; color:var(--sub); font-style:italic}
 .ht-head{max-width:1060px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px}
+.ht-head-left{display:flex; align-items:center; gap:11px}
+.ht-logo{width:38px; height:38px; min-width:38px; border-radius:10px; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-weight:700; font-size:15px; letter-spacing:.5px}
 .ht-head-titles{display:flex; flex-direction:column; gap:2px}
 .ht-head h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:26px; font-weight:600; letter-spacing:.2px}
 .ht-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:1.6px; color:var(--sub)}
@@ -774,5 +779,32 @@ const CSS = `
 .ht-strip i{height:16px; border-radius:3px; border:1px solid var(--line); display:block}
 .ht-strip i.td{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ht-catstat-num{font-size:12px; color:var(--sub); text-align:right; white-space:nowrap}
+/* ---------- mobile ---------- */
+@media (hover:none){
+  .ht-del{opacity:.55}
+  .ht-tasks li:hover{background:transparent}
+  .ht-tasks li.open{background:var(--paper)}
+}
+@media (max-width:600px){
+  .ht-root{padding:14px 10px 32px; padding-top:calc(14px + env(safe-area-inset-top)); padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+  .ht-head{margin-bottom:12px; gap:10px}
+  .ht-head h1{font-size:20px}
+  .ht-eyebrow{font-size:10px}
+  .ht-logo{width:34px; height:34px; min-width:34px; font-size:13px}
+  .ht-chip{font-size:11.5px; padding:4px 9px}
+  .ht-main{gap:10px}
+  .ht-card{padding:13px; border-radius:12px}
+  .ht-task-row{padding:10px 4px}
+  .ht-check{width:22px; height:22px; min-width:22px}
+  .ht-task-text{font-size:15px}
+  .ht-cat-tag{font-size:10px}
+  .ht-task-edit{padding-left:0}
+  .ht-add input{font-size:16px} /* prevents iOS zoom-on-focus */
+  .ht-task-edit input, .ht-task-edit textarea, .ht-newcat input{font-size:16px}
+  .ht-totals{gap:18px}
+  .ht-totals strong{font-size:22px}
+  .ht-strip i{height:13px}
+  .ht-menu{min-width:210px; max-width:calc(100vw - 24px)}
+}
 @media (prefers-reduced-motion:reduce){ .ht-root *{transition:none !important} }
 `;
