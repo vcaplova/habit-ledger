@@ -277,11 +277,11 @@ export default function HabitTracker() {
       <header className="ht-head">
         <div className="ht-head-left">
           <span className="ht-logo" aria-hidden="true">
-            <svg viewBox="0 0 212 235" width="19" height="21" fill="none" stroke="currentColor" strokeWidth="21" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M105.949 139.34H106.049M105.949 183.785H106.049M150.344 139.34H150.444M61.5547 139.34H61.6544M61.5547 183.785H61.6544" />
-              <path d="M156 6V50.4451M56 6V50.4451" />
-              <path d="M183.778 28.2188H28.2222C15.9492 28.2188 6 38.1681 6 50.4413V205.999C6 218.273 15.9492 228.222 28.2222 228.222H183.778C196.051 228.222 206 218.273 206 205.999V50.4413C206 38.1681 196.051 28.2188 183.778 28.2188Z" />
-              <path d="M6 94.8906H206" />
+            <svg viewBox="0 0 215 238" width="19" height="21" fill="none" stroke="currentColor" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M107.449 140.84H107.549M107.449 185.285H107.549M151.844 140.84H151.944M63.0547 140.84H63.1544M63.0547 185.285H63.1544" />
+              <path d="M157.5 7.5V51.9451M57.5 7.5V51.9451" />
+              <path d="M185.278 29.7188H29.7222C17.4492 29.7188 7.5 39.6681 7.5 51.9413V207.499C7.5 219.773 17.4492 229.722 29.7222 229.722H185.278C197.551 229.722 207.5 219.773 207.5 207.499V51.9413C207.5 39.6681 197.551 29.7188 185.278 29.7188Z" />
+              <path d="M7.5 96.3906H206" />
             </svg>
           </span>
           <div className="ht-head-titles">
