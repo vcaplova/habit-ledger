@@ -77,6 +77,14 @@ export default function HabitTracker() {
 
 
   const dark = data.theme === "dark";
+
+  /* keep the page + browser chrome color in sync with the theme (overscroll, status bar) */
+  useEffect(() => {
+    const bg = dark ? "#121212" : "#EDECE6";
+    document.body.style.background = bg;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bg);
+  }, [dark]);
+
   const catById = useMemo(() => Object.fromEntries(data.categories.map((c) => [c.id, c])), [data.categories]);
 
   /* ---------- resolve a day's full task list (one-offs + recurring) ---------- */
@@ -627,7 +635,8 @@ const CSS = `
   --line:#DBD7C9; --accent:#37352C; --accent-ink:#F9F8F4;
   --ok:#5FB558; --ok-ink:#FFFFFF; --warn:#F0A020; --warn-ink:#402400; --bad:#E4523F; --bad-ink:#FFFFFF;
   --plan:#E3E1D3;
-  min-height:100vh; background:var(--paper); color:var(--ink);
+  min-height:100vh; width:100%; max-width:100vw; overflow-x:hidden;
+  background:var(--paper); color:var(--ink);
   font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
   padding:20px 16px 40px; transition:background .25s, color .25s;
 }
@@ -663,6 +672,9 @@ const CSS = `
 .ht-menu-confirm{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600}
 .ht-menu-confirm span{flex:1}
 .ht-main{max-width:1060px; margin:0 auto; display:grid; grid-template-columns:minmax(300px,380px) 1fr; gap:14px; align-items:start}
+.ht-main > *{min-width:0}
+.ht-charts > *{min-width:0}
+.ht-chartbox{min-width:0; max-width:100%; overflow:hidden}
 .ht-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; transition:background .25s, border-color .25s}
 .ht-stats{grid-column:1 / -1}
 @media (max-width:760px){ .ht-main{grid-template-columns:1fr} .ht-stats{grid-column:auto} }
