@@ -276,7 +276,15 @@ export default function HabitTracker() {
 
       <header className="ht-head">
         <div className="ht-head-left">
-          <span className="ht-logo" aria-hidden="true">DL</span>
+          <span className="ht-logo" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="22" height="22">
+              <rect x="14" y="19" width="36" height="31" rx="5" fill="none" stroke="currentColor" strokeWidth="4.5" />
+              <line x1="23" y1="12" x2="23" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="41" y1="12" x2="41" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="14" y1="29" x2="50" y2="29" stroke="currentColor" strokeWidth="3" />
+              <circle cx="39" cy="41" r="5" fill="currentColor" />
+            </svg>
+          </span>
           <div className="ht-head-titles">
             <h1>{greeting("Veronika")}</h1>
           </div>
@@ -649,7 +657,8 @@ const CSS = `
 .ht-loading{padding:60px; text-align:center; color:var(--sub); font-style:italic}
 .ht-head{max-width:1060px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px}
 .ht-head-left{display:flex; align-items:center; gap:11px}
-.ht-logo{width:38px; height:38px; min-width:38px; border-radius:10px; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-weight:700; font-size:15px; letter-spacing:.5px}
+.ht-logo{width:38px; height:38px; min-width:38px; border-radius:10px; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center}
+.ht-logo svg{display:block}
 .ht-head-titles{display:flex; flex-direction:column; gap:2px}
 .ht-head h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:26px; font-weight:600; letter-spacing:.2px}
 .ht-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:1.6px; color:var(--sub)}
@@ -801,7 +810,8 @@ const CSS = `
   .ht-head{margin-bottom:12px; gap:10px}
   .ht-head h1{font-size:20px}
   .ht-eyebrow{font-size:10px}
-  .ht-logo{width:34px; height:34px; min-width:34px; font-size:13px}
+  .ht-logo{width:34px; height:34px; min-width:34px}
+  .ht-logo svg{width:19px; height:19px}
   .ht-chip{font-size:11.5px; padding:4px 9px}
   .ht-main{gap:10px}
   .ht-card{padding:13px; border-radius:12px}

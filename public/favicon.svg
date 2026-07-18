@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#37352C"/>
-  <text x="32" y="42" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#F9F8F4" text-anchor="middle">DL</text>
+  <rect width="64" height="64" rx="15" fill="#37352C"/>
+  <rect x="14" y="19" width="36" height="31" rx="5" fill="none" stroke="#F9F8F4" stroke-width="4"/>
+  <line x1="23" y1="12" x2="23" y2="23" stroke="#F9F8F4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="41" y1="12" x2="41" y2="23" stroke="#F9F8F4" stroke-width="4" stroke-linecap="round"/>
+  <line x1="14" y1="29" x2="50" y2="29" stroke="#F9F8F4" stroke-width="2.5"/>
+  <circle cx="39" cy="41" r="4.5" fill="#F9F8F4"/>
 </svg>
