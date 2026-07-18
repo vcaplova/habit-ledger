@@ -277,7 +277,7 @@ export default function HabitTracker() {
       <header className="ht-head">
         <div className="ht-head-left">
           <span className="ht-logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" width="22" height="22">
+            <svg viewBox="0 0 64 64" width="28" height="28">
               <rect x="14" y="19" width="36" height="31" rx="5" fill="none" stroke="currentColor" strokeWidth="4.5" />
               <line x1="23" y1="12" x2="23" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
               <line x1="41" y1="12" x2="41" y2="23" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
@@ -811,7 +811,7 @@ const CSS = `
   .ht-head h1{font-size:20px}
   .ht-eyebrow{font-size:10px}
   .ht-logo{width:34px; height:34px; min-width:34px}
-  .ht-logo svg{width:19px; height:19px}
+  .ht-logo svg{width:25px; height:25px}
   .ht-chip{font-size:11.5px; padding:4px 9px}
   .ht-main{gap:10px}
   .ht-card{padding:13px; border-radius:12px}
