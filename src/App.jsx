@@ -230,7 +230,7 @@ export default function HabitTracker() {
     const title = bookTitle.trim();
     const n = Math.max(1, Math.min(200, parseInt(bookChapters, 10) || 0));
     if (!title || !n) return;
-    setData((d) => ({ ...d, books: [...(d.books || []), { id: uid(), title, chapters: n, done: {} }] }));
+    setData((d) => ({ ...d, books: [{ id: uid(), title, chapters: n, done: {} }, ...(d.books || [])] }));
     setBookTitle(""); setBookChapters("");
   };
   const toggleChapter = (bid, i) =>
