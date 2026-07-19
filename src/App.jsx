@@ -6,6 +6,7 @@ import {
 import {
   Plus, Trash2, Check, ChevronLeft, ChevronRight, Flame, Copy, Trophy,
   Repeat, Sun, Moon, Settings, Settings2, X, StickyNote, Pencil, LogIn, LogOut, Cloud, CloudOff,
+  BookOpen, ArrowLeft, Lock,
 } from "lucide-react";
 import { useCloudData } from "./useCloudData";
 
@@ -44,6 +45,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 /* does a recurring rule apply on day k? */
 function ruleApplies(rule, k) {
   if (k < rule.start) return false;
+  if (rule.until && k > rule.until) return false;
   const d = fromKey(k);
   if (rule.freq === "daily") return true;
   const s = fromKey(rule.start);
@@ -56,7 +58,7 @@ function ruleApplies(rule, k) {
   return false;
 }
 
-const INITIAL_DATA = { days: {}, categories: DEFAULT_CATS, recurring: [], theme: "light" };
+const INITIAL_DATA = { days: {}, categories: DEFAULT_CATS, recurring: [], books: [], theme: "light" };
 
 export default function HabitTracker() {
   const { user, data, setData, ready: loaded, signIn, signOut } = useCloudData(INITIAL_DATA);
@@ -73,7 +75,10 @@ export default function HabitTracker() {
   const [composing, setComposing] = useState(false); // add-task form visibility
   const [menuOpen, setMenuOpen] = useState(false); // settings dropdown
   const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(null); // { kind: 'cat'|'rule', id }
+  const [confirmDelete, setConfirmDelete] = useState(null); // { kind: 'cat'|'rule'|'book', id }
+  const [page, setPage] = useState("ledger"); // "ledger" | "reading"
+  const [bookTitle, setBookTitle] = useState("");
+  const [bookChapters, setBookChapters] = useState("");
 
 
   const dark = data.theme === "dark";
@@ -216,6 +221,30 @@ export default function HabitTracker() {
   };
 
   const deleteRuleNow = (id) => { setData((d) => ({ ...d, recurring: d.recurring.filter((r) => r.id !== id) })); setConfirmDelete(null); };
+  const setRuleUntil = (id, until) =>
+    setData((d) => ({ ...d, recurring: d.recurring.map((r) => (r.id === id ? { ...r, until: until || undefined } : r)) }));
+
+  /* ---------- books ---------- */
+  const books = data.books || [];
+  const addBook = () => {
+    const title = bookTitle.trim();
+    const n = Math.max(1, Math.min(200, parseInt(bookChapters, 10) || 0));
+    if (!title || !n) return;
+    setData((d) => ({ ...d, books: [...(d.books || []), { id: uid(), title, chapters: n, done: {} }] }));
+    setBookTitle(""); setBookChapters("");
+  };
+  const toggleChapter = (bid, i) =>
+    setData((d) => ({ ...d, books: (d.books || []).map((b) => (b.id === bid ? { ...b, done: { ...b.done, [i]: !b.done[i] } } : b)) }));
+  const renameBook = (bid, title) =>
+    setData((d) => ({ ...d, books: (d.books || []).map((b) => (b.id === bid ? { ...b, title } : b)) }));
+  const setBookChapterCount = (bid, n) => {
+    const count = Math.max(1, Math.min(200, parseInt(n, 10) || 1));
+    setData((d) => ({ ...d, books: (d.books || []).map((b) => (b.id === bid ? { ...b, chapters: count } : b)) }));
+  };
+  const deleteBookNow = (bid) => {
+    setData((d) => ({ ...d, books: (d.books || []).filter((b) => b.id !== bid) }));
+    setConfirmDelete(null);
+  };
 
   const copyYesterday = () => {
     const yk = keyOf(addDays(fromKey(selected), -1));
@@ -342,6 +371,7 @@ export default function HabitTracker() {
         </div>
       </header>
 
+      {page === "ledger" && (
       <div className="ht-main">
         {/* ---------- calendar ---------- */}
         <section className="ht-card ht-cal">
@@ -499,6 +529,9 @@ export default function HabitTracker() {
           )}
 
           <div className="ht-panels">
+            <button className="ht-rulestoggle ht-readinglink" onClick={() => { setPage("reading"); setConfirmDelete(null); }}>
+              <BookOpen size={13} /> Reading
+            </button>
             <button className="ht-rulestoggle" onClick={() => { setShowRules(!showRules); setShowCats(false); }}>
               <Settings2 size={13} /> Repeating tasks ({data.recurring.length})
             </button>
@@ -524,7 +557,8 @@ export default function HabitTracker() {
                       <>
                         <span className="ht-dot" style={{ background: catById[r.cat]?.color || "#888" }} />
                         <span className="ht-rule-text">{r.text}</span>
-                        <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}</span>
+                        <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}{r.until ? ` · until ${r.until}` : ""}</span>
+                        <input type="date" className="ht-rule-until" value={r.until || ""} onChange={(e) => setRuleUntil(r.id, e.target.value)} title="Last day this repeats (leave empty for no end)" />
                         <button className="ht-del" onClick={() => setConfirmDelete({ kind: "rule", id: r.id })} aria-label="Stop repeating" title="Stops it from all future days"><X size={13} /></button>
                       </>
                     )}
@@ -555,7 +589,11 @@ export default function HabitTracker() {
                               <button key={sw} className={"ht-swatch" + (c.color === sw ? " on" : "")} style={{ background: sw }} onClick={() => recolorCategory(c.id, sw)} aria-label={`Set ${c.name} to ${sw}`} />
                             ))}
                           </span>
-                          <button className="ht-del" onClick={() => setConfirmDelete({ kind: "cat", id: c.id })} aria-label={`Delete ${c.name}`} title="Delete category"><Trash2 size={13} /></button>
+                          {c.id === "reading" ? (
+                            <span className="ht-lock" title="Permanent — linked to your Reading page"><Lock size={12} /></span>
+                          ) : (
+                            <button className="ht-del" onClick={() => setConfirmDelete({ kind: "cat", id: c.id })} aria-label={`Delete ${c.name}`} title="Delete category"><Trash2 size={13} /></button>
+                          )}
                         </>
                       )}
                     </li>
@@ -634,6 +672,71 @@ export default function HabitTracker() {
           </ul>
         </section>
       </div>
+      )}
+
+      {page === "reading" && (
+      <div className="ht-main ht-readingpage">
+        <section className="ht-card ht-readingcard">
+          <button className="ht-back" onClick={() => setPage("ledger")}><ArrowLeft size={14} /> Back to ledger</button>
+          <div className="ht-day-head" style={{ marginTop: 10 }}>
+            <h2>Reading</h2>
+            <span className="ht-day-count">{books.length ? `${books.length} book${books.length > 1 ? "s" : ""}` : "no books yet"}</span>
+          </div>
+
+          {books.length === 0 && (
+            <p className="ht-empty">Add the book you're reading and how many chapters it has — then tick them off as you go.</p>
+          )}
+
+          {books.map((b) => {
+            const doneCount = Object.keys(b.done || {}).filter((k) => b.done[k] && Number(k) < b.chapters).length;
+            const pct = b.chapters ? doneCount / b.chapters : 0;
+            const finished = doneCount === b.chapters;
+            const confirming = confirmDelete?.kind === "book" && confirmDelete.id === b.id;
+            return (
+              <div className={"ht-book" + (finished ? " finished" : "")} key={b.id}>
+                {confirming ? (
+                  <span className="ht-confirm">
+                    <span>Delete "{b.title}"?</span>
+                    <button className="ht-confirm-yes" onClick={() => deleteBookNow(b.id)}>Delete</button>
+                    <button className="ht-confirm-no" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                  </span>
+                ) : (
+                  <>
+                    <div className="ht-book-head">
+                      <input className="ht-booktitle" value={b.title} onChange={(e) => renameBook(b.id, e.target.value)} />
+                      <span className="ht-book-meta">
+                        <input type="number" min="1" max="200" className="ht-chapcount" value={b.chapters} onChange={(e) => setBookChapterCount(b.id, e.target.value)} title="Number of chapters" /> chapters
+                      </span>
+                      <button className="ht-del" onClick={() => setConfirmDelete({ kind: "book", id: b.id })} aria-label={`Delete ${b.title}`}><Trash2 size={13} /></button>
+                    </div>
+                    <div className="ht-book-progress">
+                      <div className="ht-bar"><div className="ht-bar-fill" style={{ width: `${pct * 100}%` }} /></div>
+                      <span className="ht-book-meta">{finished ? "Finished ✦" : `${doneCount} / ${b.chapters} · ${Math.round(pct * 100)}% · ${b.chapters - doneCount} to go`}</span>
+                    </div>
+                    <div className="ht-chapgrid">
+                      {Array.from({ length: b.chapters }, (_, i) => (
+                        <button key={i} className={"ht-chap" + (b.done?.[i] ? " read" : "")} onClick={() => toggleChapter(b.id, i)} aria-label={`Chapter ${i + 1}`}>
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+
+          <div className="ht-add" style={{ marginTop: 16 }}>
+            <div className="ht-add-head"><span>Add a book</span></div>
+            <div className="ht-add-row">
+              <input value={bookTitle} onChange={(e) => setBookTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addBook()} placeholder="Book title" />
+              <input type="number" min="1" max="200" className="ht-chapters-input" value={bookChapters} onChange={(e) => setBookChapters(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addBook()} placeholder="Ch." />
+              <button className="ht-addbtn" onClick={addBook} aria-label="Add book"><Plus size={16} /></button>
+            </div>
+          </div>
+        </section>
+      </div>
+      )}
     </div>
   );
 }
@@ -766,7 +869,31 @@ const CSS = `
 .ht-swatches{display:inline-flex; gap:4px; flex-wrap:wrap; max-width:170px}
 .ht-swatch{width:16px; height:16px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0}
 .ht-swatch.on{border-color:var(--ink)}
-.ht-panels{display:flex; gap:16px; margin-top:14px}
+.ht-panels{display:flex; gap:16px; margin-top:14px; flex-wrap:wrap}
+.ht-readinglink{color:var(--accent)}
+.ht-rule-until{border:1px solid var(--line); background:var(--cell); color:var(--sub); border-radius:7px; padding:2px 5px; font-size:11px; font-family:inherit; width:118px}
+.ht-rule-until:focus{border-color:var(--accent); outline:none}
+.ht-lock{color:var(--sub); display:inline-flex; padding:3px}
+/* reading page */
+.ht-readingpage{grid-template-columns:1fr}
+.ht-readingcard{max-width:720px; margin:0 auto; width:100%}
+.ht-back{display:inline-flex; align-items:center; gap:6px; border:none; background:none; color:var(--sub); font-size:12.5px; font-weight:600; cursor:pointer; padding:0; font-family:inherit}
+.ht-back:hover{color:var(--ink)}
+.ht-book{border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:12px; background:var(--cell)}
+.ht-book.finished{border-color:var(--ok)}
+.ht-book-head{display:flex; align-items:center; gap:10px}
+.ht-booktitle{flex:1; border:1px solid transparent; background:transparent; font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:16.5px; font-weight:600; color:var(--ink); padding:3px 6px; border-radius:6px; min-width:0}
+.ht-booktitle:focus{border-color:var(--line); background:var(--card); outline:none}
+.ht-book-meta{font-size:12px; color:var(--sub); white-space:nowrap}
+.ht-chapcount{width:44px; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:6px; padding:2px 4px; font-size:12px; text-align:center; font-family:inherit}
+.ht-book-progress{display:flex; align-items:center; gap:12px; margin-top:10px}
+.ht-book-progress .ht-bar{flex:1; margin-bottom:0}
+.ht-chapgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(36px, 1fr)); gap:6px; margin-top:12px}
+.ht-chap{aspect-ratio:1; border:1.5px solid var(--line); border-radius:8px; background:var(--card); font-size:12px; font-weight:600; color:var(--sub); cursor:pointer; font-family:inherit; padding:0}
+.ht-chap:hover{border-color:var(--accent)}
+.ht-chap.read{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.ht-chapters-input{width:64px; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 8px; font-size:14px; color:var(--ink); outline:none; text-align:center; font-family:inherit}
+.ht-chapters-input:focus{border-color:var(--accent)}
 .ht-rulestoggle{display:inline-flex; align-items:center; gap:6px; border:none; background:none; color:var(--sub); font-size:12.5px; font-weight:600; cursor:pointer; padding:0}
 .ht-rulestoggle:hover{color:var(--ink)}
 .ht-rules{list-style:none; padding:8px 0 0; display:flex; flex-direction:column; gap:4px}
