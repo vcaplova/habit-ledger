@@ -79,6 +79,7 @@ export default function HabitTracker() {
   const [page, setPage] = useState("ledger"); // "ledger" | "reading"
   const [bookTitle, setBookTitle] = useState("");
   const [bookChapters, setBookChapters] = useState("");
+  const [openBook, setOpenBook] = useState(null); // book id opened from the gallery
 
 
   const dark = data.theme === "dark";
@@ -687,45 +688,66 @@ export default function HabitTracker() {
             <p className="ht-empty">Add the book you're reading and how many chapters it has — then tick them off as you go.</p>
           )}
 
-          {books.map((b) => {
+          {!openBook && books.length > 0 && (
+            <div className="ht-bookgrid">
+              {books.map((b) => {
+                const doneCount = Object.keys(b.done || {}).filter((k) => b.done[k] && Number(k) < b.chapters).length;
+                const pct = b.chapters ? doneCount / b.chapters : 0;
+                const finished = doneCount === b.chapters;
+                return (
+                  <button key={b.id} className={"ht-bookcard" + (finished ? " finished" : "")} onClick={() => setOpenBook(b.id)}>
+                    <span className="ht-bookcard-title">{b.title}</span>
+                    <span className="ht-bookcard-meta">{finished ? "Finished ✦" : `${doneCount} / ${b.chapters} chapters`}</span>
+                    <span className="ht-bookcard-bar"><span style={{ width: `${pct * 100}%` }} /></span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {openBook && books.filter((b) => b.id === openBook).map((b) => {
             const doneCount = Object.keys(b.done || {}).filter((k) => b.done[k] && Number(k) < b.chapters).length;
             const pct = b.chapters ? doneCount / b.chapters : 0;
             const finished = doneCount === b.chapters;
             const confirming = confirmDelete?.kind === "book" && confirmDelete.id === b.id;
             return (
-              <div className={"ht-book" + (finished ? " finished" : "")} key={b.id}>
-                {confirming ? (
-                  <span className="ht-confirm">
-                    <span>Delete "{b.title}"?</span>
-                    <button className="ht-confirm-yes" onClick={() => deleteBookNow(b.id)}>Delete</button>
-                    <button className="ht-confirm-no" onClick={() => setConfirmDelete(null)}>Cancel</button>
-                  </span>
-                ) : (
-                  <>
-                    <div className="ht-book-head">
-                      <input className="ht-booktitle" value={b.title} onChange={(e) => renameBook(b.id, e.target.value)} />
-                      <span className="ht-book-meta">
-                        <input type="number" min="1" max="200" className="ht-chapcount" value={b.chapters} onChange={(e) => setBookChapterCount(b.id, e.target.value)} title="Number of chapters" /> chapters
-                      </span>
-                      <button className="ht-del" onClick={() => setConfirmDelete({ kind: "book", id: b.id })} aria-label={`Delete ${b.title}`}><Trash2 size={13} /></button>
-                    </div>
-                    <div className="ht-book-progress">
-                      <div className="ht-bar"><div className="ht-bar-fill" style={{ width: `${pct * 100}%` }} /></div>
-                      <span className="ht-book-meta">{finished ? "Finished ✦" : `${doneCount} / ${b.chapters} · ${Math.round(pct * 100)}% · ${b.chapters - doneCount} to go`}</span>
-                    </div>
-                    <div className="ht-chapgrid">
-                      {Array.from({ length: b.chapters }, (_, i) => (
-                        <button key={i} className={"ht-chap" + (b.done?.[i] ? " read" : "")} onClick={() => toggleChapter(b.id, i)} aria-label={`Chapter ${i + 1}`}>
-                          {i + 1}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
+              <div key={b.id}>
+                <button className="ht-back" style={{ marginTop: 12 }} onClick={() => { setOpenBook(null); setConfirmDelete(null); }}><ArrowLeft size={13} /> All books</button>
+                <div className={"ht-book" + (finished ? " finished" : "")}>
+                  {confirming ? (
+                    <span className="ht-confirm">
+                      <span>Delete "{b.title}"?</span>
+                      <button className="ht-confirm-yes" onClick={() => { deleteBookNow(b.id); setOpenBook(null); }}>Delete</button>
+                      <button className="ht-confirm-no" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                    </span>
+                  ) : (
+                    <>
+                      <div className="ht-book-head">
+                        <input className="ht-booktitle" value={b.title} onChange={(e) => renameBook(b.id, e.target.value)} />
+                        <span className="ht-book-meta">
+                          <input type="number" min="1" max="200" className="ht-chapcount" value={b.chapters} onChange={(e) => setBookChapterCount(b.id, e.target.value)} title="Number of chapters" /> chapters
+                        </span>
+                        <button className="ht-del" onClick={() => setConfirmDelete({ kind: "book", id: b.id })} aria-label={`Delete ${b.title}`}><Trash2 size={13} /></button>
+                      </div>
+                      <div className="ht-book-progress">
+                        <div className="ht-bar"><div className="ht-bar-fill" style={{ width: `${pct * 100}%` }} /></div>
+                        <span className="ht-book-meta">{finished ? "Finished ✦" : `${doneCount} / ${b.chapters} · ${Math.round(pct * 100)}% · ${b.chapters - doneCount} to go`}</span>
+                      </div>
+                      <div className="ht-chapgrid">
+                        {Array.from({ length: b.chapters }, (_, i) => (
+                          <button key={i} className={"ht-chap" + (b.done?.[i] ? " read" : "")} onClick={() => toggleChapter(b.id, i)} aria-label={`Chapter ${i + 1}`}>
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}
 
+          {!openBook && (
           <div className="ht-add" style={{ marginTop: 16 }}>
             <div className="ht-add-head"><span>Add a book</span></div>
             <div className="ht-add-row">
@@ -734,6 +756,7 @@ export default function HabitTracker() {
               <button className="ht-addbtn" onClick={addBook} aria-label="Add book"><Plus size={16} /></button>
             </div>
           </div>
+          )}
         </section>
       </div>
       )}
@@ -875,6 +898,15 @@ const CSS = `
 .ht-rule-until:focus{border-color:var(--accent); outline:none}
 .ht-lock{color:var(--sub); display:inline-flex; padding:3px}
 /* reading page */
+.ht-bookgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; margin-top:14px}
+.ht-bookcard{position:relative; aspect-ratio:3/4; border:1px solid var(--line); border-left:5px solid var(--accent); border-radius:10px 14px 14px 10px; background:var(--cell); cursor:pointer; padding:16px 13px 13px; display:flex; flex-direction:column; text-align:left; font-family:inherit; transition:transform .15s ease, box-shadow .15s ease}
+.ht-bookcard:hover{transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.10)}
+.ht-bookcard.finished{border-left-color:var(--ok)}
+.ht-bookcard-title{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:16px; font-weight:600; color:var(--ink); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical}
+.ht-bookcard-meta{margin-top:auto; font-size:11.5px; color:var(--sub); padding-top:8px}
+.ht-bookcard-bar{display:block; height:5px; background:var(--paper); border-radius:99px; overflow:hidden; margin-top:7px}
+.ht-bookcard-bar span{display:block; height:100%; background:var(--accent); border-radius:99px}
+.ht-bookcard.finished .ht-bookcard-bar span{background:var(--ok)}
 .ht-readingpage{grid-template-columns:1fr}
 .ht-readingcard{max-width:720px; margin:0 auto; width:100%}
 .ht-back{display:inline-flex; align-items:center; gap:6px; border:none; background:none; color:var(--sub); font-size:12.5px; font-weight:600; cursor:pointer; padding:0; font-family:inherit}
