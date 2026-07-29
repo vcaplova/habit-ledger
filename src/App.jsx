@@ -576,8 +576,16 @@ export default function HabitTracker() {
                         <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}</span>
                         {editingUntil === r.id ? (
                           <span className="ht-until-edit">
-                            <input type="date" autoFocus className="ht-rule-until" value={r.until || ""} onChange={(e) => { setRuleUntil(r.id, e.target.value); setEditingUntil(null); }} />
-                            <button className="ht-until-never" onClick={() => { setRuleUntil(r.id, ""); setEditingUntil(null); }}>no end date</button>
+                            <input
+                              type="date"
+                              autoFocus
+                              className="ht-rule-until"
+                              value={r.until || ""}
+                              onChange={(e) => { setRuleUntil(r.id, e.target.value); setEditingUntil(null); }}
+                              onBlur={() => setEditingUntil(null)}
+                              onKeyDown={(e) => e.key === "Escape" && setEditingUntil(null)}
+                            />
+                            <button className="ht-until-never" onMouseDown={(e) => e.preventDefault()} onClick={() => { setRuleUntil(r.id, ""); setEditingUntil(null); }}>no end date</button>
                           </span>
                         ) : (
                           <button className="ht-untilchip" onClick={() => setEditingUntil(r.id)} title="Set the last day this repeats">
