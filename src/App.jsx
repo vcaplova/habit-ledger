@@ -81,6 +81,7 @@ export default function HabitTracker() {
   const [bookChapters, setBookChapters] = useState("");
   const [openBook, setOpenBook] = useState(null); // book id opened from the gallery
   const [wishTitle, setWishTitle] = useState("");
+  const [editingUntil, setEditingUntil] = useState(null); // rule id whose end date is being edited
 
 
   const dark = data.theme === "dark";
@@ -320,7 +321,7 @@ export default function HabitTracker() {
 
       <header className="ht-head">
         <div className="ht-head-left">
-          <span className="ht-logo" aria-hidden="true">
+          <button className="ht-logo" onClick={() => { setPage("ledger"); setOpenBook(null); }} aria-label="Go to main screen">
             <svg viewBox="0 0 512 512" fill="none">
               <rect width="512" height="512" rx="115" fill="var(--accent)" />
               <g transform="translate(137.75, 125) scale(1.1)" stroke="var(--accent-ink)" strokeWidth="20" strokeLinecap="round" strokeLinejoin="round">
@@ -330,7 +331,7 @@ export default function HabitTracker() {
                 <path d="M7.5 96.3906H207.5" />
               </g>
             </svg>
-          </span>
+          </button>
           <div className="ht-head-titles">
             <h1>{greeting("Veronika")}</h1>
           </div>
@@ -572,9 +573,17 @@ export default function HabitTracker() {
                       <>
                         <span className="ht-dot" style={{ background: catById[r.cat]?.color || "#888" }} />
                         <span className="ht-rule-text">{r.text}</span>
-                        <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}{r.until ? ` · until ${r.until}` : ""}</span>
-                        <input type="date" className="ht-rule-until" value={r.until || ""} onChange={(e) => setRuleUntil(r.id, e.target.value)} title="Last day this repeats (leave empty for no end)" />
-                        {r.until && <button className="ht-del" style={{ opacity: 0.7 }} onClick={() => setRuleUntil(r.id, "")} aria-label="Remove end date" title="Remove end date — repeats forever again"><X size={13} /></button>}
+                        <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}</span>
+                        {editingUntil === r.id ? (
+                          <span className="ht-until-edit">
+                            <input type="date" autoFocus className="ht-rule-until" value={r.until || ""} onChange={(e) => { setRuleUntil(r.id, e.target.value); setEditingUntil(null); }} />
+                            <button className="ht-until-never" onClick={() => { setRuleUntil(r.id, ""); setEditingUntil(null); }}>no end date</button>
+                          </span>
+                        ) : (
+                          <button className="ht-untilchip" onClick={() => setEditingUntil(r.id)} title="Set the last day this repeats">
+                            {r.until ? `ends ${r.until.slice(8,10)}.${r.until.slice(5,7)}.` : "no end"}
+                          </button>
+                        )}
                         <button className="ht-del" onClick={() => setConfirmDelete({ kind: "rule", id: r.id })} aria-label="Stop repeating" title="Stops it from all future days"><X size={13} /></button>
                       </>
                     )}
@@ -824,7 +833,7 @@ const CSS = `
 .ht-loading{padding:60px; text-align:center; color:var(--sub); font-style:italic}
 .ht-head{max-width:1060px; margin:0 auto 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px}
 .ht-head-left{display:flex; align-items:center; gap:11px}
-.ht-logo{width:38px; height:38px; min-width:38px; display:block}
+.ht-logo{width:38px; height:38px; min-width:38px; display:block; border:none; background:none; padding:0; cursor:pointer}
 .ht-logo svg{width:100%; height:100%; display:block}
 .ht-head-titles{display:flex; flex-direction:column; gap:2px}
 .ht-head h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; font-size:26px; font-weight:600; letter-spacing:.2px}
@@ -933,6 +942,11 @@ const CSS = `
 .ht-swatch.on{border-color:var(--ink)}
 .ht-panels{display:flex; gap:16px; margin-top:14px; flex-wrap:wrap}
 .ht-readinglink{color:var(--accent)}
+.ht-untilchip{border:1px solid var(--line); background:transparent; color:var(--sub); border-radius:999px; padding:3px 9px; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap}
+.ht-untilchip:hover{color:var(--ink); border-color:var(--sub)}
+.ht-until-edit{display:inline-flex; align-items:center; gap:5px}
+.ht-until-never{border:none; background:none; color:var(--sub); font-size:11px; font-weight:600; cursor:pointer; text-decoration:underline; font-family:inherit; white-space:nowrap}
+.ht-until-never:hover{color:var(--ink)}
 .ht-rule-until{border:1px solid var(--line); background:var(--cell); color:var(--sub); border-radius:7px; padding:2px 5px; font-size:11px; font-family:inherit; width:118px}
 .ht-rule-until:focus{border-color:var(--accent); outline:none}
 .ht-lock{color:var(--sub); display:inline-flex; padding:3px}
@@ -965,6 +979,9 @@ const CSS = `
 .ht-chap.read{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
 .ht-chapters-input{width:64px; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 8px; font-size:14px; color:var(--ink); outline:none; text-align:center; font-family:inherit}
 .ht-chapters-input:focus{border-color:var(--accent)}
+.ht-wishwrap{margin-top:26px; border-top:1px solid var(--line); padding-top:6px}
+.ht-wishwrap .ht-add-row input{flex:1; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 12px; font-size:14px; color:var(--ink); outline:none; min-width:0; font-family:inherit}
+.ht-wishwrap .ht-add-row input:focus{border-color:var(--accent)}
 .ht-wish{list-style:none; padding:0; margin:4px 0 0; display:flex; flex-direction:column; gap:2px}
 .ht-wish li{display:flex; align-items:center; gap:10px; padding:7px 4px; border-radius:9px}
 .ht-wish li:hover{background:var(--paper)}
@@ -1027,7 +1044,7 @@ const CSS = `
   .ht-cat-tag{font-size:10px}
   .ht-task-edit{padding-left:0}
   .ht-add input{font-size:16px} /* prevents iOS zoom-on-focus */
-  .ht-task-edit input, .ht-task-edit textarea, .ht-newcat input{font-size:16px}
+  .ht-task-edit input, .ht-task-edit textarea, .ht-newcat input, .ht-wishwrap .ht-add-row input{font-size:16px}
   .ht-totals{gap:18px}
   .ht-totals strong{font-size:22px}
   .ht-strip i{height:13px}
