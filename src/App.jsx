@@ -1004,7 +1004,7 @@ const CSS = `
 .ht-chapters-input{width:64px; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 8px; font-size:14px; color:var(--ink); outline:none; text-align:center; font-family:inherit}
 .ht-chapters-input:focus{border-color:var(--accent)}
 .ht-reading-tools{display:inline-flex; align-items:center; gap:10px}
-.ht-modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:60}
+.ht-modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:60}
 .ht-modal{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:61; width:min(440px, calc(100vw - 28px)); max-height:min(560px, calc(100vh - 60px)); overflow-y:auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 18px 50px rgba(0,0,0,.30)}
 .ht-wishrow input{flex:1; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 12px; font-size:14px; color:var(--ink); outline:none; min-width:0; font-family:inherit}
 .ht-wishrow input:focus{border-color:var(--accent)}
