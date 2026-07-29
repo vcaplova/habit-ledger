@@ -80,6 +80,7 @@ export default function HabitTracker() {
   const [bookTitle, setBookTitle] = useState("");
   const [bookChapters, setBookChapters] = useState("");
   const [openBook, setOpenBook] = useState(null); // book id opened from the gallery
+  const [wishTitle, setWishTitle] = useState("");
 
 
   const dark = data.theme === "dark";
@@ -246,6 +247,19 @@ export default function HabitTracker() {
     setData((d) => ({ ...d, books: (d.books || []).filter((b) => b.id !== bid) }));
     setConfirmDelete(null);
   };
+
+  /* ---------- reading wishlist ---------- */
+  const wishlist = data.wishlist || [];
+  const addWish = () => {
+    const title = wishTitle.trim();
+    if (!title) return;
+    setData((d) => ({ ...d, wishlist: [{ id: uid(), title, done: false }, ...(d.wishlist || [])] }));
+    setWishTitle("");
+  };
+  const toggleWish = (id) =>
+    setData((d) => ({ ...d, wishlist: (d.wishlist || []).map((w) => (w.id === id ? { ...w, done: !w.done } : w)) }));
+  const deleteWish = (id) =>
+    setData((d) => ({ ...d, wishlist: (d.wishlist || []).filter((w) => w.id !== id) }));
 
   const copyYesterday = () => {
     const yk = keyOf(addDays(fromKey(selected), -1));
@@ -560,6 +574,7 @@ export default function HabitTracker() {
                         <span className="ht-rule-text">{r.text}</span>
                         <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}{r.until ? ` · until ${r.until}` : ""}</span>
                         <input type="date" className="ht-rule-until" value={r.until || ""} onChange={(e) => setRuleUntil(r.id, e.target.value)} title="Last day this repeats (leave empty for no end)" />
+                        {r.until && <button className="ht-del" style={{ opacity: 0.7 }} onClick={() => setRuleUntil(r.id, "")} aria-label="Remove end date" title="Remove end date — repeats forever again"><X size={13} /></button>}
                         <button className="ht-del" onClick={() => setConfirmDelete({ kind: "rule", id: r.id })} aria-label="Stop repeating" title="Stops it from all future days"><X size={13} /></button>
                       </>
                     )}
@@ -757,6 +772,30 @@ export default function HabitTracker() {
             </div>
           </div>
           )}
+
+          {!openBook && (
+            <div className="ht-wishwrap">
+              <div className="ht-day-head" style={{ marginTop: 22 }}>
+                <h2>Want to read</h2>
+                <span className="ht-day-count">{wishlist.length ? `${wishlist.filter((w) => w.done).length} / ${wishlist.length} read` : "empty so far"}</span>
+              </div>
+              <ul className="ht-wish">
+                {wishlist.map((w) => (
+                  <li key={w.id} className={w.done ? "done" : ""}>
+                    <button className="ht-check ht-wishcheck" onClick={() => toggleWish(w.id)} aria-label={w.done ? "Mark as unread" : "Mark as read"}>
+                      {w.done && <Check size={12} strokeWidth={3.5} />}
+                    </button>
+                    <span className="ht-wish-title">{w.title}</span>
+                    <button className="ht-del" onClick={() => deleteWish(w.id)} aria-label={`Remove ${w.title}`}><Trash2 size={13} /></button>
+                  </li>
+                ))}
+              </ul>
+              <div className="ht-add-row" style={{ marginTop: 8 }}>
+                <input value={wishTitle} onChange={(e) => setWishTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addWish()} placeholder="A book you want to read…" />
+                <button className="ht-addbtn" onClick={addWish} aria-label="Add to list"><Plus size={16} /></button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
       )}
@@ -926,6 +965,13 @@ const CSS = `
 .ht-chap.read{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
 .ht-chapters-input{width:64px; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 8px; font-size:14px; color:var(--ink); outline:none; text-align:center; font-family:inherit}
 .ht-chapters-input:focus{border-color:var(--accent)}
+.ht-wish{list-style:none; padding:0; margin:4px 0 0; display:flex; flex-direction:column; gap:2px}
+.ht-wish li{display:flex; align-items:center; gap:10px; padding:7px 4px; border-radius:9px}
+.ht-wish li:hover{background:var(--paper)}
+.ht-wish li.done .ht-wish-title{text-decoration:line-through; color:var(--sub)}
+.ht-wishcheck{border-color:var(--accent); color:var(--accent-ink)}
+.ht-wish li.done .ht-wishcheck{background:var(--accent)}
+.ht-wish-title{flex:1; font-size:14.5px; min-width:0; overflow:hidden; text-overflow:ellipsis}
 .ht-rulestoggle{display:inline-flex; align-items:center; gap:6px; border:none; background:none; color:var(--sub); font-size:12.5px; font-weight:600; cursor:pointer; padding:0}
 .ht-rulestoggle:hover{color:var(--ink)}
 .ht-rules{list-style:none; padding:8px 0 0; display:flex; flex-direction:column; gap:4px}
