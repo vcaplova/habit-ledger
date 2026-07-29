@@ -6,7 +6,7 @@ import {
 import {
   Plus, Trash2, Check, ChevronLeft, ChevronRight, Flame, Copy, Trophy,
   Repeat, Sun, Moon, Settings, Settings2, X, StickyNote, Pencil, LogIn, LogOut, Cloud, CloudOff,
-  BookOpen, ArrowLeft, Lock,
+  BookOpen, ArrowLeft, Lock, NotebookPen,
 } from "lucide-react";
 import { useCloudData } from "./useCloudData";
 
@@ -82,6 +82,7 @@ export default function HabitTracker() {
   const [openBook, setOpenBook] = useState(null); // book id opened from the gallery
   const [wishTitle, setWishTitle] = useState("");
   const [editingUntil, setEditingUntil] = useState(null); // rule id whose end date is being edited
+  const [wishOpen, setWishOpen] = useState(false); // want-to-read popup
 
 
   const dark = data.theme === "dark";
@@ -713,7 +714,12 @@ export default function HabitTracker() {
           <button className="ht-back" onClick={() => setPage("ledger")}><ArrowLeft size={14} /> Back to ledger</button>
           <div className="ht-day-head" style={{ marginTop: 10 }}>
             <h2>Reading</h2>
-            <span className="ht-day-count">{books.length ? `${books.length} book${books.length > 1 ? "s" : ""}` : "no books yet"}</span>
+            <span className="ht-reading-tools">
+              <span className="ht-day-count">{books.length ? `${books.length} book${books.length > 1 ? "s" : ""}` : "no books yet"}</span>
+              <button className="ht-iconbtn" onClick={() => setWishOpen(true)} aria-label="Open your want-to-read list" title="Want to read">
+                <NotebookPen size={15} />
+              </button>
+            </span>
           </div>
 
           {books.length === 0 && (
@@ -790,28 +796,35 @@ export default function HabitTracker() {
           </div>
           )}
 
-          {!openBook && (
-            <div className="ht-wishwrap">
-              <div className="ht-day-head" style={{ marginTop: 22 }}>
-                <h2>Want to read</h2>
-                <span className="ht-day-count">{wishlist.length ? `${wishlist.filter((w) => w.done).length} / ${wishlist.length} read` : "empty so far"}</span>
+          {wishOpen && (
+            <>
+              <div className="ht-modal-backdrop" onClick={() => setWishOpen(false)} />
+              <div className="ht-modal" role="dialog" aria-label="Want to read">
+                <div className="ht-day-head">
+                  <h2>Want to read</h2>
+                  <span className="ht-reading-tools">
+                    <span className="ht-day-count">{wishlist.length ? `${wishlist.filter((w) => w.done).length} / ${wishlist.length} read` : "empty so far"}</span>
+                    <button className="ht-iconbtn" onClick={() => setWishOpen(false)} aria-label="Close"><X size={15} /></button>
+                  </span>
+                </div>
+                <ul className="ht-wish">
+                  {wishlist.map((w) => (
+                    <li key={w.id} className={w.done ? "done" : ""}>
+                      <button className="ht-check ht-wishcheck" onClick={() => toggleWish(w.id)} aria-label={w.done ? "Mark as unread" : "Mark as read"}>
+                        {w.done && <Check size={12} strokeWidth={3.5} />}
+                      </button>
+                      <span className="ht-wish-title">{w.title}</span>
+                      <button className="ht-del" onClick={() => deleteWish(w.id)} aria-label={`Remove ${w.title}`}><Trash2 size={13} /></button>
+                    </li>
+                  ))}
+                </ul>
+                {wishlist.length === 0 && <p className="ht-empty">Books you want to read someday — jot them down here.</p>}
+                <div className="ht-add-row ht-wishrow" style={{ marginTop: 10 }}>
+                  <input value={wishTitle} onChange={(e) => setWishTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addWish()} placeholder="A book you want to read…" />
+                  <button className="ht-addbtn" onClick={addWish} aria-label="Add to list"><Plus size={16} /></button>
+                </div>
               </div>
-              <ul className="ht-wish">
-                {wishlist.map((w) => (
-                  <li key={w.id} className={w.done ? "done" : ""}>
-                    <button className="ht-check ht-wishcheck" onClick={() => toggleWish(w.id)} aria-label={w.done ? "Mark as unread" : "Mark as read"}>
-                      {w.done && <Check size={12} strokeWidth={3.5} />}
-                    </button>
-                    <span className="ht-wish-title">{w.title}</span>
-                    <button className="ht-del" onClick={() => deleteWish(w.id)} aria-label={`Remove ${w.title}`}><Trash2 size={13} /></button>
-                  </li>
-                ))}
-              </ul>
-              <div className="ht-add-row" style={{ marginTop: 8 }}>
-                <input value={wishTitle} onChange={(e) => setWishTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addWish()} placeholder="A book you want to read…" />
-                <button className="ht-addbtn" onClick={addWish} aria-label="Add to list"><Plus size={16} /></button>
-              </div>
-            </div>
+            </>
           )}
         </section>
       </div>
@@ -990,9 +1003,11 @@ const CSS = `
 .ht-chap.read{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
 .ht-chapters-input{width:64px; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 8px; font-size:14px; color:var(--ink); outline:none; text-align:center; font-family:inherit}
 .ht-chapters-input:focus{border-color:var(--accent)}
-.ht-wishwrap{margin-top:26px; border-top:1px solid var(--line); padding-top:6px}
-.ht-wishwrap .ht-add-row input{flex:1; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 12px; font-size:14px; color:var(--ink); outline:none; min-width:0; font-family:inherit}
-.ht-wishwrap .ht-add-row input:focus{border-color:var(--accent)}
+.ht-reading-tools{display:inline-flex; align-items:center; gap:10px}
+.ht-modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:60}
+.ht-modal{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:61; width:min(440px, calc(100vw - 28px)); max-height:min(560px, calc(100vh - 60px)); overflow-y:auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 18px 50px rgba(0,0,0,.30)}
+.ht-wishrow input{flex:1; border:1px solid var(--line); background:var(--cell); border-radius:9px; padding:9px 12px; font-size:14px; color:var(--ink); outline:none; min-width:0; font-family:inherit}
+.ht-wishrow input:focus{border-color:var(--accent)}
 .ht-wish{list-style:none; padding:0; margin:4px 0 0; display:flex; flex-direction:column; gap:2px}
 .ht-wish li{display:flex; align-items:center; gap:10px; padding:7px 4px; border-radius:9px}
 .ht-wish li:hover{background:var(--paper)}
@@ -1055,7 +1070,7 @@ const CSS = `
   .ht-cat-tag{font-size:10px}
   .ht-task-edit{padding-left:0}
   .ht-add input{font-size:16px} /* prevents iOS zoom-on-focus */
-  .ht-task-edit input, .ht-task-edit textarea, .ht-newcat input, .ht-wishwrap .ht-add-row input{font-size:16px}
+  .ht-task-edit input, .ht-task-edit textarea, .ht-newcat input, .ht-wishrow input{font-size:16px}
   .ht-totals{gap:18px}
   .ht-totals strong{font-size:22px}
   .ht-strip i{height:13px}
