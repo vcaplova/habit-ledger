@@ -818,12 +818,14 @@ const CSS = `
   --line:#DBD7C9; --accent:#37352C; --accent-ink:#F9F8F4;
   --ok:#5FB558; --ok-ink:#FFFFFF; --warn:#F0A020; --warn-ink:#402400; --bad:#E4523F; --bad-ink:#FFFFFF;
   --plan:#E3E1D3;
+  color-scheme:light;
   min-height:100vh; width:100%; max-width:100vw; overflow-x:hidden;
   background:var(--paper); color:var(--ink);
   font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
   padding:20px 16px 40px; transition:background .25s, color .25s;
 }
 .ht-root.dark{
+  color-scheme:dark;
   --paper:#121212; --card:#1B1B1A; --cell:#212120; --ink:#E9E7E0; --sub:#8F8B81;
   --line:#333230; --accent:#D8D5CB; --accent-ink:#161615;
   --ok:#4CAF45; --ok-ink:#0B1E08; --warn:#E0941C; --warn-ink:#2A1800; --bad:#D6543F; --bad-ink:#280C06;
@@ -947,7 +949,8 @@ const CSS = `
 .ht-until-edit{display:inline-flex; align-items:center; gap:5px}
 .ht-until-never{border:none; background:none; color:var(--sub); font-size:11px; font-weight:600; cursor:pointer; text-decoration:underline; font-family:inherit; white-space:nowrap}
 .ht-until-never:hover{color:var(--ink)}
-.ht-rule-until{border:1px solid var(--line); background:var(--cell); color:var(--sub); border-radius:7px; padding:2px 5px; font-size:11px; font-family:inherit; width:118px}
+.ht-rule-until{border:1px solid var(--line); background:var(--cell); color:var(--ink); border-radius:7px; padding:2px 5px; font-size:11px; font-family:inherit; width:118px; color-scheme:inherit}
+.ht-rule-until::-webkit-calendar-picker-indicator{cursor:pointer; opacity:.65}
 .ht-rule-until:focus{border-color:var(--accent); outline:none}
 .ht-lock{color:var(--sub); display:inline-flex; padding:3px}
 /* reading page */
