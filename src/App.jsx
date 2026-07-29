@@ -255,7 +255,7 @@ export default function HabitTracker() {
   const addWish = () => {
     const title = wishTitle.trim();
     if (!title) return;
-    setData((d) => ({ ...d, wishlist: [{ id: uid(), title, done: false }, ...(d.wishlist || [])] }));
+    setData((d) => ({ ...d, wishlist: [...(d.wishlist || []), { id: uid(), title, done: false }] }));
     setWishTitle("");
   };
   const toggleWish = (id) =>
