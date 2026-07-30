@@ -808,7 +808,7 @@ export default function HabitTracker() {
                   </span>
                 </div>
                 <ul className="ht-wish">
-                  {wishlist.map((w) => (
+                  {[...wishlist.filter((w) => !w.done), ...wishlist.filter((w) => w.done)].map((w) => (
                     <li key={w.id} className={w.done ? "done" : ""}>
                       <button className="ht-check ht-wishcheck" onClick={() => toggleWish(w.id)} aria-label={w.done ? "Mark as unread" : "Mark as read"}>
                         {w.done && <Check size={12} strokeWidth={3.5} />}
