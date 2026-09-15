@@ -83,6 +83,7 @@ export default function HabitTracker() {
   const [wishTitle, setWishTitle] = useState("");
   const [editingUntil, setEditingUntil] = useState(null); // rule id whose end date is being edited
   const [wishOpen, setWishOpen] = useState(false); // want-to-read popup
+  const [showEnded, setShowEnded] = useState(false); // ended repeating tasks archive
 
 
   const dark = data.theme === "dark";
@@ -557,50 +558,65 @@ export default function HabitTracker() {
             </button>
           </div>
 
-          {showRules && (
-            <ul className="ht-rules">
-              {data.recurring.length === 0 && <li className="ht-empty">Nothing repeats yet — pick daily, weekly or monthly when adding a task.</li>}
-              {data.recurring.map((r) => {
-                const confirming = confirmDelete?.kind === "rule" && confirmDelete.id === r.id;
-                return (
-                  <li key={r.id}>
-                    {confirming ? (
-                      <span className="ht-confirm">
-                        <span>Stop "{r.text}"?</span>
-                        <button className="ht-confirm-yes" onClick={() => deleteRuleNow(r.id)}>Delete</button>
-                        <button className="ht-confirm-no" onClick={() => setConfirmDelete(null)}>Cancel</button>
-                      </span>
-                    ) : (
-                      <>
-                        <span className="ht-dot" style={{ background: catById[r.cat]?.color || "#888" }} />
-                        <span className="ht-rule-text">{r.text}</span>
-                        <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}</span>
-                        {editingUntil === r.id ? (
-                          <span className="ht-until-edit">
-                            <input
-                              type="date"
-                              autoFocus
-                              className="ht-rule-until"
-                              value={r.until || ""}
-                              onChange={(e) => { setRuleUntil(r.id, e.target.value); setEditingUntil(null); }}
-                              onBlur={() => setEditingUntil(null)}
-                              onKeyDown={(e) => e.key === "Escape" && setEditingUntil(null)}
-                            />
-                            <button className="ht-until-never" onMouseDown={(e) => e.preventDefault()} onClick={() => { setRuleUntil(r.id, ""); setEditingUntil(null); }}>no end date</button>
-                          </span>
-                        ) : (
-                          <button className="ht-untilchip" onClick={() => setEditingUntil(r.id)} title="Set the last day this repeats">
-                            {r.until ? `ends ${r.until.slice(8,10)}.${r.until.slice(5,7)}.` : "no end"}
-                          </button>
-                        )}
-                        <button className="ht-del" onClick={() => setConfirmDelete({ kind: "rule", id: r.id })} aria-label="Stop repeating" title="Stops it from all future days"><X size={13} /></button>
-                      </>
-                    )}
+          {showRules && (() => {
+            const renderRuleRow = (r, ended) => {
+              const confirming = confirmDelete?.kind === "rule" && confirmDelete.id === r.id;
+              return (
+                <li key={r.id} className={ended ? "ended" : ""}>
+                  {confirming ? (
+                    <span className="ht-confirm">
+                      <span>Delete "{r.text}"?{" "}<em className="ht-confirm-note">Also removes it from past days.</em></span>
+                      <button className="ht-confirm-yes" onClick={() => deleteRuleNow(r.id)}>Delete</button>
+                      <button className="ht-confirm-no" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                    </span>
+                  ) : (
+                    <>
+                      <span className="ht-dot" style={{ background: catById[r.cat]?.color || "#888" }} />
+                      <span className="ht-rule-text">{r.text}</span>
+                      <span className="ht-rule-freq">{FREQ_LABEL[r.freq]}</span>
+                      {editingUntil === r.id ? (
+                        <span className="ht-until-edit">
+                          <input
+                            type="date"
+                            autoFocus
+                            className="ht-rule-until"
+                            value={r.until || ""}
+                            onChange={(e) => { setRuleUntil(r.id, e.target.value); setEditingUntil(null); }}
+                            onBlur={() => setEditingUntil(null)}
+                            onKeyDown={(e) => e.key === "Escape" && setEditingUntil(null)}
+                          />
+                          <button className="ht-until-never" onMouseDown={(e) => e.preventDefault()} onClick={() => { setRuleUntil(r.id, ""); setEditingUntil(null); }}>no end date</button>
+                        </span>
+                      ) : (
+                        <button className="ht-untilchip" onClick={() => setEditingUntil(r.id)} title={ended ? "Change the end date — clearing it revives the task" : "Set the last day this repeats"}>
+                          {r.until ? `${ended ? "ended" : "ends"} ${r.until.slice(8,10)}.${r.until.slice(5,7)}.` : "no end"}
+                        </button>
+                      )}
+                      <button className="ht-del" onClick={() => setConfirmDelete({ kind: "rule", id: r.id })} aria-label="Delete rule" title="Deletes it everywhere — including past days"><X size={13} /></button>
+                    </>
+                  )}
+                </li>
+              );
+            };
+            const tkNow = todayKey();
+            const active = data.recurring.filter((r) => !r.until || r.until >= tkNow);
+            const ended = data.recurring.filter((r) => r.until && r.until < tkNow);
+            return (
+              <ul className="ht-rules">
+                {data.recurring.length === 0 && <li className="ht-empty">Nothing repeats yet — pick daily, weekly or monthly when adding a task.</li>}
+                {active.length === 0 && ended.length > 0 && <li className="ht-empty">Nothing repeating right now.</li>}
+                {active.map((r) => renderRuleRow(r, false))}
+                {ended.length > 0 && (
+                  <li className="ht-ended-toggle-row">
+                    <button className="ht-rulestoggle" onClick={() => setShowEnded(!showEnded)}>
+                      {showEnded ? "Hide ended" : `Ended (${ended.length})`}
+                    </button>
                   </li>
-                );
-              })}
-            </ul>
-          )}
+                )}
+                {showEnded && ended.sort((a, b) => (a.until < b.until ? 1 : -1)).map((r) => renderRuleRow(r, true))}
+              </ul>
+            );
+          })()}
 
           {showCats && (
             <div className="ht-catmanage-scroll">
@@ -1022,6 +1038,10 @@ const CSS = `
 .ht-rules li:hover{background:var(--paper)}
 .ht-rule-text{flex:1}
 .ht-rule-freq{font-size:11px; color:var(--sub); font-style:italic}
+.ht-rules li.ended{opacity:.55}
+.ht-rules li.ended:hover{opacity:1}
+.ht-ended-toggle-row{border-top:1px solid var(--line); margin-top:4px; padding-top:8px}
+.ht-confirm-note{font-weight:400; font-style:italic; color:var(--sub); font-size:11.5px}
 .ht-catmanage-scroll{max-height:220px; overflow-y:auto; margin-top:2px}
 .ht-catmanage li{gap:10px}
 .ht-confirm{display:flex; align-items:center; gap:8px; width:100%; font-size:12.5px; color:var(--ink)}
